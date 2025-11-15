@@ -1,0 +1,611 @@
+{
+	"info": {
+		"_postman_id": "task-management-api-v1",
+		"name": "Task Management API",
+		"description": "Complete API collection for Task Management System with role-based access control",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000/api",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Register - Manager",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const token = pm.response.json().data?.token;",
+									"    if (token) {",
+									"        pm.collectionVariables.set('access_token', token);",
+									"        console.log('Token saved:', token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New Manager\",\n    \"email\": \"newmanager@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"manager\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new manager account"
+					},
+					"response": []
+				},
+				{
+					"name": "Register - User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    const token = pm.response.json().data?.token;",
+									"    if (token) {",
+									"        pm.collectionVariables.set('access_token', token);",
+									"        console.log('Token saved:', token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"New User\",\n    \"email\": \"newuser@example.com\",\n    \"password\": \"password123\",\n    \"password_confirmation\": \"password123\",\n    \"role\": \"user\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "register"]
+						},
+						"description": "Register a new regular user account"
+					},
+					"response": []
+				},
+				{
+					"name": "Login - Manager",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const token = pm.response.json().data?.token;",
+									"    if (token) {",
+									"        pm.collectionVariables.set('access_token', token);",
+									"        console.log('Token saved:', token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"manager1@example.com\",\n    \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login as manager with full permissions"
+					},
+					"response": []
+				},
+				{
+					"name": "Login - User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const token = pm.response.json().data?.token;",
+									"    if (token) {",
+									"        pm.collectionVariables.set('access_token', token);",
+									"        console.log('Token saved:', token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user1@example.com\",\n    \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "login"]
+						},
+						"description": "Login as regular user with limited permissions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/user",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "user"]
+						},
+						"description": "Get authenticated user information with roles and permissions"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["auth", "logout"]
+						},
+						"description": "Logout and revoke current token"
+					},
+					"response": []
+				}
+			],
+			"description": "Authentication endpoints for login, logout, and user information"
+		},
+		{
+			"name": "Tasks - CRUD",
+			"item": [
+				{
+					"name": "List All Tasks",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tasks",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks"]
+						},
+						"description": "Get all tasks (managers see all, users see only assigned)"
+					},
+					"response": []
+				},
+				{
+					"name": "List Tasks - Filter by Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tasks?status=pending",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks"],
+							"query": [
+								{
+									"key": "status",
+									"value": "pending",
+									"description": "pending, completed, or canceled"
+								}
+							]
+						},
+						"description": "Filter tasks by status"
+					},
+					"response": []
+				},
+				{
+					"name": "List Tasks - Filter by Date Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tasks?due_date_from=2025-01-01&due_date_to=2025-12-31",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks"],
+							"query": [
+								{
+									"key": "due_date_from",
+									"value": "2025-01-01"
+								},
+								{
+									"key": "due_date_to",
+									"value": "2025-12-31"
+								}
+							]
+						},
+						"description": "Filter tasks by due date range"
+					},
+					"response": []
+				},
+				{
+					"name": "List Tasks - Filter by Assigned User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tasks?assigned_to=3",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks"],
+							"query": [
+								{
+									"key": "assigned_to",
+									"value": "3",
+									"description": "User ID"
+								}
+							]
+						},
+						"description": "Filter tasks by assigned user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Task by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tasks/1",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks", "1"]
+						},
+						"description": "Get a specific task with all its details including dependencies"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Task",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"// ⚠️ IMPORTANT: This endpoint requires MANAGER role!",
+									"// Make sure you logged in as Manager first:",
+									"// Authentication → Login - Manager",
+									"",
+									"if (!pm.collectionVariables.get('access_token')) {",
+									"    console.warn('⚠️ No token found! Please login first as Manager.');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Complete API Documentation\",\n    \"description\": \"Write comprehensive documentation for all API endpoints\",\n    \"assigned_to\": 3,\n    \"due_date\": \"2025-12-31\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/tasks",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks"]
+						},
+						"description": "⚠️ **MANAGER ONLY!**\n\nCreate a new task. This endpoint requires the `create-task` permission which is only available to Managers.\n\n**Required:**\n- Login as Manager first: `Authentication → Login - Manager`\n- Permission: `create-task`\n\n**Regular Users cannot create tasks!**"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Task",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Updated Task Title\",\n    \"description\": \"Updated description\",\n    \"status\": \"completed\",\n    \"assigned_to\": 4,\n    \"due_date\": \"2025-12-25\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/tasks/1",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks", "1"]
+						},
+						"description": "Update task details (Manager only)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Task Status (User)",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"status\": \"completed\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/tasks/1/status",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks", "1", "status"]
+						},
+						"description": "Update only the status of assigned task (User can do this)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Task",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tasks/1",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks", "1"]
+						},
+						"description": "Delete a task (Manager only)"
+					},
+					"response": []
+				}
+			],
+			"description": "CRUD operations for tasks"
+		},
+		{
+			"name": "Task Dependencies",
+			"item": [
+				{
+					"name": "Add Task Dependency",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"depends_on_task_id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/v1/tasks/1/dependencies",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks", "1", "dependencies"]
+						},
+						"description": "Add a dependency to a task (task 1 depends on task 2)"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Task Dependency",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/v1/tasks/1/dependencies/2",
+							"host": ["{{base_url}}"],
+							"path": ["v1", "tasks", "1", "dependencies", "2"]
+						},
+						"description": "Remove a dependency from a task"
+					},
+					"response": []
+				}
+			],
+			"description": "Manage task dependencies"
+		},
+		{
+			"name": "Test Scenarios",
+			"item": [
+				{
+					"name": "Scenario 1 - Create Task with Dependencies",
+					"item": [
+						{
+							"name": "1. Create Base Task",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Setup Development Environment\",\n    \"description\": \"Install required tools and dependencies\",\n    \"assigned_to\": 3,\n    \"due_date\": \"2025-11-20\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "2. Create Dependent Task",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"title\": \"Write API Tests\",\n    \"description\": \"Create comprehensive test suite\",\n    \"assigned_to\": 3,\n    \"due_date\": \"2025-11-25\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks"]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "3. Add Dependency",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"depends_on_task_id\": 1\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks/2/dependencies",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks", "2", "dependencies"]
+								},
+								"description": "Task 2 depends on Task 1"
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Scenario 2 - Validation Tests",
+					"item": [
+						{
+							"name": "Try to create task without title",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"description\": \"This should fail\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks"]
+								},
+								"description": "Should return 422 validation error"
+							},
+							"response": []
+						},
+						{
+							"name": "Try to complete task with pending dependencies",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"status\": \"completed\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks/2/status",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks", "2", "status"]
+								},
+								"description": "Should fail if task 1 is not completed"
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"description": "Complete test scenarios demonstrating various features"
+		}
+	]
+}
+
