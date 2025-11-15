@@ -14,11 +14,21 @@ class UpdateTaskStatusRequest extends FormRequest
     public function authorize(): bool
     {
         $task = $this->route('task');
+        $user = $this->user();
 
-        // User must be assigned to the task to update its status
-        return $task instanceof Task
-            && $task->assigned_to === $this->user()->id
-            && $this->user()->can('update-task-status');
+        // Check if user has the permission
+        \App\Helpers\ExceptionHelper::authorize(
+            $user->can('update-task-status'),
+            'You do not have permission to update task status.'
+        );
+
+        // Check if user is assigned to the task
+        \App\Helpers\ExceptionHelper::authorize(
+            $task instanceof Task && $task->assigned_to === $user->id,
+            'You can only update the status of tasks assigned to you.'
+        );
+
+        return true;
     }
 
     /**
@@ -34,6 +44,19 @@ class UpdateTaskStatusRequest extends FormRequest
     }
 
     /**
+     * Get custom error messages for validator errors.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'status.required' => 'Status is required.',
+            'status.in' => 'Invalid status. Allowed values: pending, completed, canceled.',
+        ];
+    }
+
+    /**
      * Configure the validator instance.
      */
     public function withValidator($validator): void
@@ -43,9 +66,18 @@ class UpdateTaskStatusRequest extends FormRequest
                 $task = $this->route('task');
 
                 if ($task instanceof Task && ! $task->canBeCompleted()) {
+                    $pendingDeps = $task->dependencies()
+                        ->where('status', '!=', 'completed')
+                        ->pluck('title')
+                        ->toArray();
+                    
+                    $depList = !empty($pendingDeps) 
+                        ? ' Pending dependencies: ' . implode(', ', $pendingDeps)
+                        : '';
+                    
                     $validator->errors()->add(
                         'status',
-                        'Cannot complete task. Some dependencies are not yet completed.'
+                        'Cannot complete task. Some dependencies are not yet completed.' . $depList
                     );
                 }
             }

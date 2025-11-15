@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "task-management-api-v1",
 		"name": "Task Management API",
-		"description": "Complete API collection for Task Management System with role-based access control",
+		"description": "# Task Management API Collection\n\nComplete API collection for Task Management System with role-based access control.\n\n## 🚀 Quick Start\n\n1. **Start the server**: `php artisan serve`\n2. **Login as Manager**: Use `Authentication → Login - Manager`\n3. **Create tasks**: Use `Tasks - CRUD → Create Task`\n4. **Test scenarios**: Follow `Test Scenarios → Scenario 1`\n\n## 👥 User Roles\n\n### Manager\n- ✅ Create, update, delete tasks\n- ✅ Assign tasks to users\n- ✅ View all tasks\n- ✅ Manage task dependencies\n- **Default credentials**: `manager1@example.com` / `password`\n\n### User\n- ✅ View assigned tasks only\n- ✅ Update status of assigned tasks\n- ❌ Cannot create or delete tasks\n- **Default credentials**: `user1@example.com` / `password`\n\n## 📋 Task Dependencies\n\nTasks can depend on other tasks. A task cannot be completed until all its dependencies are completed.\n\n**Example**:\n- Task A depends on Task B\n- Task B must be completed before Task A can be completed\n\n## ⚠️ Important Notes\n\n- **Authentication**: Most endpoints require authentication. Login first!\n- **Task IDs**: Make sure tasks exist before referencing them\n- **Dependencies**: A task cannot depend on itself\n- **Circular Dependencies**: Not allowed (A→B→C→A)\n\n## 🔧 Variables\n\n- `base_url`: API base URL (default: http://localhost:8000/api)\n- `access_token`: Auto-saved after login\n- `task_1_id`: Auto-saved after creating Task 1\n- `task_2_id`: Auto-saved after creating Task 2",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -23,6 +23,16 @@
 		},
 		{
 			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "task_1_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "task_2_id",
 			"value": "",
 			"type": "string"
 		}
@@ -449,14 +459,14 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"depends_on_task_id\": 2\n}"
+							"raw": "{\n    \"depends_on_task_id\": 1\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/v1/tasks/1/dependencies",
+							"raw": "{{base_url}}/v1/tasks/2/dependencies",
 							"host": ["{{base_url}}"],
-							"path": ["v1", "tasks", "1", "dependencies"]
+							"path": ["v1", "tasks", "2", "dependencies"]
 						},
-						"description": "Add a dependency to a task (task 1 depends on task 2)"
+						"description": "⚠️ IMPORTANT: Make sure both tasks exist first!\n\nThis example: Task 2 depends on Task 1\nMeaning: Task 1 must be completed before Task 2 can be completed.\n\n🔴 Common Errors:\n- Task ID doesn't exist → Create tasks first using POST /v1/tasks\n- Task cannot depend on itself → Use different IDs\n- Circular dependency → A→B→C→A is not allowed\n- Dependency already exists → Each dependency can only be added once"
 					},
 					"response": []
 				},
@@ -466,11 +476,11 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/v1/tasks/1/dependencies/2",
+							"raw": "{{base_url}}/v1/tasks/2/dependencies/1",
 							"host": ["{{base_url}}"],
-							"path": ["v1", "tasks", "1", "dependencies", "2"]
+							"path": ["v1", "tasks", "2", "dependencies", "1"]
 						},
-						"description": "Remove a dependency from a task"
+						"description": "Remove a dependency from a task.\n\nExample: DELETE /v1/tasks/2/dependencies/1\nRemoves the dependency where Task 2 depends on Task 1."
 					},
 					"response": []
 				}
@@ -484,7 +494,67 @@
 					"name": "Scenario 1 - Create Task with Dependencies",
 					"item": [
 						{
-							"name": "1. Create Base Task",
+							"name": "Step 1: Login as Manager",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 200) {",
+											"    const token = pm.response.json().data?.token;",
+											"    if (token) {",
+											"        pm.collectionVariables.set('access_token', token);",
+											"        console.log('✅ Logged in successfully');",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"email\": \"manager1@example.com\",\n    \"password\": \"password\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/auth/login",
+									"host": ["{{base_url}}"],
+									"path": ["auth", "login"]
+								},
+								"description": "⚠️ IMPORTANT: Must login as Manager first!"
+							},
+							"response": []
+						},
+						{
+							"name": "Step 2: Create Base Task (Task 1)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 201) {",
+											"    const taskId = pm.response.json().data?.id;",
+											"    if (taskId) {",
+											"        pm.collectionVariables.set('task_1_id', taskId);",
+											"        console.log('✅ Task 1 created with ID:', taskId);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [
@@ -501,12 +571,30 @@
 									"raw": "{{base_url}}/v1/tasks",
 									"host": ["{{base_url}}"],
 									"path": ["v1", "tasks"]
-								}
+								},
+								"description": "Create the first task that other tasks will depend on"
 							},
 							"response": []
 						},
 						{
-							"name": "2. Create Dependent Task",
+							"name": "Step 3: Create Second Task (Task 2)",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"if (pm.response.code === 201) {",
+											"    const taskId = pm.response.json().data?.id;",
+											"    if (taskId) {",
+											"        pm.collectionVariables.set('task_2_id', taskId);",
+											"        console.log('✅ Task 2 created with ID:', taskId);",
+											"    }",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [
@@ -523,12 +611,102 @@
 									"raw": "{{base_url}}/v1/tasks",
 									"host": ["{{base_url}}"],
 									"path": ["v1", "tasks"]
-								}
+								},
+								"description": "Create second task that will depend on Task 1"
 							},
 							"response": []
 						},
 						{
-							"name": "3. Add Dependency",
+							"name": "Step 4: Add Dependency (Task 2 depends on Task 1)",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"depends_on_task_id\": {{task_1_id}}\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks/{{task_2_id}}/dependencies",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks", "{{task_2_id}}", "dependencies"]
+								},
+								"description": "⚠️ IMPORTANT: Make sure task_1_id and task_2_id variables are set!\n\nThis makes Task 2 depend on Task 1, meaning Task 1 must be completed before Task 2 can be completed."
+							},
+							"response": []
+						},
+						{
+							"name": "Step 5: View Task 2 with Dependencies",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/v1/tasks/{{task_2_id}}",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks", "{{task_2_id}}"]
+								},
+								"description": "View Task 2 to see its dependencies"
+							},
+							"response": []
+						}
+					],
+					"description": "Complete workflow to create tasks with dependencies.\n\n📝 Steps:\n1. Login as Manager\n2. Create Task 1 (Base task)\n3. Create Task 2 (Dependent task)\n4. Add dependency (Task 2 depends on Task 1)\n5. View Task 2 with its dependencies"
+				},
+				{
+					"name": "Scenario 2 - Validation Tests",
+					"item": [
+						{
+							"name": "Test 1: Create task without title",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"description\": \"This should fail - no title provided\"\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks"]
+								},
+								"description": "❌ Expected: 422 Validation Error\n\nError: \"Task title is required.\""
+							},
+							"response": []
+						},
+						{
+							"name": "Test 2: Add non-existent task as dependency",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"depends_on_task_id\": 99999\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks/1/dependencies",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks", "1", "dependencies"]
+								},
+								"description": "❌ Expected: 422 Validation Error\n\nError: \"The selected task (ID: 99999) does not exist. Please create the task first or use a valid task ID.\""
+							},
+							"response": []
+						},
+						{
+							"name": "Test 3: Task depends on itself",
 							"request": {
 								"method": "POST",
 								"header": [
@@ -542,44 +720,16 @@
 									"raw": "{\n    \"depends_on_task_id\": 1\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/v1/tasks/2/dependencies",
+									"raw": "{{base_url}}/v1/tasks/1/dependencies",
 									"host": ["{{base_url}}"],
-									"path": ["v1", "tasks", "2", "dependencies"]
+									"path": ["v1", "tasks", "1", "dependencies"]
 								},
-								"description": "Task 2 depends on Task 1"
-							},
-							"response": []
-						}
-					]
-				},
-				{
-					"name": "Scenario 2 - Validation Tests",
-					"item": [
-						{
-							"name": "Try to create task without title",
-							"request": {
-								"method": "POST",
-								"header": [
-									{
-										"key": "Content-Type",
-										"value": "application/json"
-									}
-								],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"description\": \"This should fail\"\n}"
-								},
-								"url": {
-									"raw": "{{base_url}}/v1/tasks",
-									"host": ["{{base_url}}"],
-									"path": ["v1", "tasks"]
-								},
-								"description": "Should return 422 validation error"
+								"description": "❌ Expected: 422 Validation Error\n\nError: \"A task cannot depend on itself.\""
 							},
 							"response": []
 						},
 						{
-							"name": "Try to complete task with pending dependencies",
+							"name": "Test 4: Complete task with pending dependencies",
 							"request": {
 								"method": "PATCH",
 								"header": [
@@ -593,15 +743,39 @@
 									"raw": "{\n    \"status\": \"completed\"\n}"
 								},
 								"url": {
-									"raw": "{{base_url}}/v1/tasks/2/status",
+									"raw": "{{base_url}}/v1/tasks/{{task_2_id}}/status",
 									"host": ["{{base_url}}"],
-									"path": ["v1", "tasks", "2", "status"]
+									"path": ["v1", "tasks", "{{task_2_id}}", "status"]
 								},
-								"description": "Should fail if task 1 is not completed"
+								"description": "❌ Expected: 422 Validation Error (if Task 1 is not completed)\n\nError: \"Cannot complete task. Some dependencies are not yet completed. Pending dependencies: Setup Development Environment\"\n\n⚠️ Prerequisites:\n1. Task 2 must exist and be assigned to you\n2. Task 2 must depend on Task 1\n3. Task 1 must NOT be completed yet"
+							},
+							"response": []
+						},
+						{
+							"name": "Test 5: Add duplicate dependency",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"depends_on_task_id\": {{task_1_id}}\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/v1/tasks/{{task_2_id}}/dependencies",
+									"host": ["{{base_url}}"],
+									"path": ["v1", "tasks", "{{task_2_id}}", "dependencies"]
+								},
+								"description": "❌ Expected: 422 Validation Error (if dependency already exists)\n\nError: \"This dependency already exists. Task X already depends on Task Y.\"\n\n⚠️ Prerequisites:\n- The dependency must already exist (run Test Scenario 1 first)"
 							},
 							"response": []
 						}
-					]
+					],
+					"description": "Test various validation scenarios to ensure proper error handling.\n\n✅ All tests should return proper error messages with status 422."
 				}
 			],
 			"description": "Complete test scenarios demonstrating various features"

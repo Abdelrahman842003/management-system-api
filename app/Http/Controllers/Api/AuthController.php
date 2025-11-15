@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\ExceptionHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
@@ -40,11 +41,7 @@ class AuthController extends Controller
                 Response::HTTP_CREATED
             );
         } catch (\Exception $e) {
-            return $this->errorResponse(
-                'Registration failed',
-                ['error' => $e->getMessage()],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return ExceptionHelper::serverErrorResponse('Registration failed: ' . $e->getMessage());
         }
     }
 

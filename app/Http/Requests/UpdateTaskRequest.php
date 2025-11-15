@@ -13,7 +13,12 @@ class UpdateTaskRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('update-task');
+        \App\Helpers\ExceptionHelper::authorize(
+            $this->user()->can('update-task'),
+            'You do not have permission to update tasks.'
+        );
+
+        return true;
     }
 
     /**

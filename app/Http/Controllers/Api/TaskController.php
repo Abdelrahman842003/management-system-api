@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Helpers\ExceptionHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AttachDependencyRequest;
 use App\Http\Requests\StoreTaskRequest;
@@ -72,11 +73,7 @@ class TaskController extends Controller
         $user = request()->user();
 
         if (! $user->can('view-all-tasks') && $task->assigned_to !== $user->id) {
-            return $this->errorResponse(
-                'You are not authorized to view this task.',
-                null,
-                Response::HTTP_FORBIDDEN
-            );
+            return ExceptionHelper::forbiddenResponse('You are not authorized to view this task.');
         }
 
         $task->load(['assignedTo', 'createdBy', 'dependencies']);
@@ -107,11 +104,7 @@ class TaskController extends Controller
     {
         // Check authorization
         if (! request()->user()->can('update-task')) {
-            return $this->errorResponse(
-                'You are not authorized to delete this task.',
-                null,
-                Response::HTTP_FORBIDDEN
-            );
+            return ExceptionHelper::forbiddenResponse('You are not authorized to delete this task.');
         }
 
         $this->taskService->delete($task);
@@ -159,11 +152,7 @@ class TaskController extends Controller
     {
         // Check authorization
         if (! $request->user()->can('update-task')) {
-            return $this->errorResponse(
-                'You are not authorized to modify task dependencies.',
-                null,
-                Response::HTTP_FORBIDDEN
-            );
+            return ExceptionHelper::forbiddenResponse('You are not authorized to modify task dependencies.');
         }
 
         $task = $this->taskService->detachDependency($task, $dependsOnTask->id);
