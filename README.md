@@ -2,7 +2,8 @@
 
 A RESTful API for managing tasks with role-based access control, task dependencies, and filtering capabilities.
 
-> 📊 **Database Schema**: See [ERD Diagram](erd.drawio) for complete database structure and relationships.
+> 📊 **Database Schema**: See [ERD Diagram](erd.drawio) for complete database structure and relationships.  
+> 📮 **API Testing**: Import [Postman Collection](Task-Management-API.postman_collection.json) for ready-to-use API requests.
 
 ## Features
 
